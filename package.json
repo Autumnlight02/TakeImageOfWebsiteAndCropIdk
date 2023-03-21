@@ -15,5 +15,9 @@
     "puppeteer-autoscroll-down": "^1.1.1",
     "puppeteer-core": "^19.7.5",
     "sharp": "^0.31.3"
+  },
+  "devDependencies": {
+    "@types/sharp": "^0.31.1",
+    "typescript": "^5.0.2"
   }
 }
