@@ -9,10 +9,16 @@ if (process.argv[2] === undefined) {
   console.log("ERROR, NO IMG URL GIVEN, ADD IT TO THE END"), console.log();
   exit(1);
 }
+const outDir =
+  "./output/" +
+  process.argv[2].replace("https://", "").replace("http://", "") +
+  "/";
+if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
 
 function sleep(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
+console.log("running variant 1 and 2, working...");
 
 async function createImagesV1() {
   try {
@@ -22,7 +28,11 @@ async function createImagesV1() {
 
     await page.setViewport({ width: 1920, height: 1000 });
 
-    await page.goto(process.argv[2], { waitUntil: "networkidle0" });
+    await page
+      .goto(process.argv[2], { waitUntil: "networkidle0" })
+      .catch((e) => {
+        console.log("page might have not loaded correctly");
+      });
     const heightTemp = await page.evaluate((e) => {
       const h = document.body.getBoundingClientRect().height;
       const heightApp =
@@ -68,16 +78,16 @@ async function createImagesV1() {
     await sharp("./final.png")
       .resize({ width: 1440 })
       .jpeg({ quality: 80 })
-      .toFile(host + "-compressed-v1.jpeg");
+      .toFile(outDir + host + "-compressed-v1.jpeg");
     await sharp("./final.png")
       .resize({ width: 800 })
       .extract({ width: 800, height: 550, top: 0, left: 0 })
       .jpeg({ quality: 80 })
-      .toFile(host + "-thumbnail-v1.jpeg");
-    fs.renameSync("./final.png", "./" + host + "-full-v1.png");
+      .toFile(outDir + host + "-thumbnail-v1.jpeg");
+    fs.renameSync("./final.png", outDir + host + "-full-v1.png");
     fs.unlinkSync("./temp.png");
 
-    console.log("variante 1 was sucessfull");
+    console.log("variant 1 was sucessfull");
   } catch (e) {
     console.log(e);
   }
@@ -90,7 +100,11 @@ async function createImagesV2() {
 
     await page.setViewport({ width: 1920, height: 1080 });
 
-    await page.goto(process.argv[2], { waitUntil: "networkidle0" });
+    await page
+      .goto(process.argv[2], { waitUntil: "networkidle0" })
+      .catch((e) => {
+        console.log("page might have not loaded correctly");
+      });
 
     await sleep(3000);
 
@@ -123,14 +137,14 @@ async function createImagesV2() {
     await sharp("./final2.png")
       .resize({ width: 1440 })
       .jpeg({ quality: 80 })
-      .toFile(host + "-compressed-v2.jpeg");
+      .toFile(outDir + host + "-compressed-v2.jpeg");
     await sharp("./final2.png")
       .resize({ width: 800 })
       .extract({ width: 800, height: 550, top: 0, left: 0 })
       .jpeg({ quality: 80 })
-      .toFile(host + "-thumbnail-v2.jpeg");
-    fs.renameSync("./final2.png", "./" + host + "-full-v2.png");
-    console.log("variante 2 was sucessfull");
+      .toFile(outDir + host + "-thumbnail-v2.jpeg");
+    fs.renameSync("./final2.png", outDir + host + "-full-v2.png");
+    console.log("variant 2 was sucessfull");
   } catch (e) {
     console.log(e);
   }
